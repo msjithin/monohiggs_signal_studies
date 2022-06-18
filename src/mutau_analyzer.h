@@ -1083,6 +1083,8 @@ public :
    double get_zptmass_weight();
    double btag_sf_weight(int muIndex , int tauIndex);
    void printP4values(string when);
+   void make_plots(string category, int reco_tau_e_idx, int reco_tau_h_idx, int gen_tau_h_idx, int gen_tau_e_idx);
+
 };
 
 #endif

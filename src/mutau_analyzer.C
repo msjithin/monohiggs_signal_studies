@@ -222,18 +222,18 @@ event_weight = 1.0;
     /// fill gen taus
     string hNumber = "0";
     int gen_tau_count = 0;
-    // cout<<__LINE__<<endl;
+    // // cout<<__LINE__<<endl;
     int count = 0;
     bool found_tau=false;
     bool found_etau=false;
     int gen_tau_parent1 = -99;
     int gen_tau_parent2 = -99;
-    int gen_tau_e_idx = -99;
+    int gen_tau_mu_idx = -99;
     int gen_tau_h_idx = -99;
     TLorentzVector reco_lep1, reco_lep2, gen_lep1, gen_lep2;
     for(int imc=0; imc<nMC; imc++)
     {
-      // cout<<__LINE__<<endl;
+      // // cout<<__LINE__<<endl;
       if(mcPt->at(imc)>15 && abs(mcEta->at(imc))<2.3 && abs(mcPID->at(imc))==15 && mcStatus->at(imc)==2)
           gen_tau_count++;
 
@@ -275,289 +275,186 @@ event_weight = 1.0;
           if(mcPt->at(jmc)>15 && abs(mcEta->at(jmc))<2.3 && mcMotherPID->at(jmc)==mom_pid && abs(mcPID->at(jmc))==13 && found_etau!=true)
           {
             found_etau=true;
-            gen_tau_e_idx = jmc;
+            gen_tau_mu_idx = jmc;
             gen_tau_parent1 = imc;
           }
-          if(gen_tau_e_idx >=0)
+          if(gen_tau_mu_idx >=0)
             break;
         }
       }
-      if(gen_tau_e_idx >=0)
+      if(gen_tau_mu_idx >=0)
           break;
     }
 
+      /// filling for reco
+      nSingleTrgPassed += event_weight;
+      tauCand.clear();
+      muCand.clear();
+      tauCand = getTauCand_med(15.0, 2.3, 0);
+      muCand = getMuCand(15.0, 2.3, 0);
+      int reco_tau_mu_idx = -99;
+      int reco_tau_h_idx = -99;
+      make_plots("0", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+      // tauCand = getTauCand(30.0, 2.3, 0 ); // from analysis
+      // cout<< "n reco taus "<< tauCand.size() <<endl;
+      // cout<<__LINE__<<endl;
 
-
-    // cout<<__LINE__<<endl;
-    if(gen_tau_e_idx >=0)
-    {
-      gen_tau1Pt  = mcPt->at(gen_tau_e_idx) ;
-      gen_tau1Eta = mcEta->at(gen_tau_e_idx) ;
-      gen_tau1Phi = mcPhi->at(gen_tau_e_idx) ;
-      gen_tau1dm  = mcTauDecayMode->at(gen_tau_e_idx) ;
-      gen_tau1E   = mcE->at(gen_tau_e_idx) ;
-      plotFill("gen_tau1Pt_"+hNumber, gen_tau1Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("gentau1Eta_"+hNumber, gen_tau1Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("gentau1Phi_"+hNumber, gen_tau1Phi, 30, -3.14, 3.14,  event_weight);
-      plotFill("gentau1DecayMode_"+hNumber, gen_tau1dm , 12, 0, 12,  event_weight);
-      gen_lep1.SetPtEtaPhiE(gen_tau1Pt, gen_tau1Eta, gen_tau1Phi, gen_tau1E );
-    }
-    // cout<<__LINE__<<endl;
-    if(gen_tau_h_idx>=0)
-    {
-      gen_tau2Pt  = mcPt->at(gen_tau_h_idx) ;
-      gen_tau2Eta = mcEta->at(gen_tau_h_idx) ;
-      gen_tau2Phi = mcPhi->at(gen_tau_h_idx) ;
-      gen_tau2dm  = mcTauDecayMode->at(gen_tau_h_idx) ;
-      gen_tau2E   = mcE->at(gen_tau_h_idx) ;
-      plotFill("gen_tau2Pt_"+hNumber, gen_tau2Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("gentau2Eta_"+hNumber, gen_tau2Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("gentau2Phi_"+hNumber, gen_tau2Phi, 30, -3.14, 3.14,  event_weight);
-      plotFill("gentau2DecayMode_"+hNumber, gen_tau2dm , 12, 0, 12,  event_weight);
-      gen_lep2.SetPtEtaPhiE(gen_tau2Pt, gen_tau2Eta, gen_tau2Phi, gen_tau2E );
-    }
-    plotFill("gen_ntaus_"+hNumber, gen_tau_count, 8 , 0 , 8 ,  event_weight);
-    // cout<<__LINE__<<endl;
-
-
-    /// filling for reco
-
-	  nSingleTrgPassed+=event_weight;
-	  tauCand.clear();
-    muCand.clear();
-    tauCand = getTauCand_med(15.0, 2.3, 0 );
-    muCand  = getMuCand(15.0, 2.3, 0);
-    int reco_tau_e_idx = -99;
-    int reco_tau_h_idx = -99;
-    // tauCand = getTauCand(30.0, 2.3, 0 ); // from analysis
-    // cout<< "n reco taus "<< tauCand.size() <<endl;
-    // cout<<__LINE__<<endl;
-
-    if((muCand.size()>0 && tauCand.size()>0)==false)
-      continue;
-
-
-    // cout<<__LINE__<<endl;
-    for(int i=0; i<muCand.size(); i++)
-    {
-      for(int j=0; j<tauCand.size(); j++)
+      if (muCand.size() > 0 && tauCand.size() > 0)
       {
-        if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+        // cout<<__LINE__<<endl;
+        for (int i = 0; i < muCand.size(); i++)
+        {
+          for (int j = 0; j < tauCand.size(); j++)
           {
-            reco_tau_e_idx=muCand[i]; 
-            reco_tau_h_idx=tauCand[j]; 
-            break;
+            if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+            {
+              reco_tau_mu_idx = muCand[i];
+              reco_tau_h_idx = tauCand[j];
+              break;
+            }
           }
-      }
-      // cout<<__LINE__<<endl;
-      if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-        break;
-    }
-
-    // cout<<__LINE__<<endl;
-    if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-    {
-      // cout<<__LINE__<<endl;
-      int tau1Index = reco_tau_e_idx;
-      int tau2Index = reco_tau_h_idx;
-
-      reco_tau1Pt  = muPt->at(tau1Index);
-      reco_tau1Eta = muEta->at(tau1Index);
-      reco_tau1Phi = muPhi->at(tau1Index);
-      // reco_tau1dm  = tau_DecayMode->at(tau1Index);
-      reco_tau1E = muE->at(tau1Index);
-      plotFill("reco_tau1Pt_"+hNumber, reco_tau1Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau1Eta_"+hNumber, reco_tau1Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau1Phi_"+hNumber, reco_tau1Phi, 30, -3.14, 3.14,  event_weight);
-      // plotFill("reco_tau1DecayMode_"+hNumber, reco_tau1dm , 12, 0, 12,  event_weight);
-      plotFill("reco_tau1E_"+hNumber, reco_tau1E , 80 , 0 , 400 ,  event_weight);
-      reco_lep1.SetPtEtaPhiE(reco_tau1Pt, reco_tau1Eta, reco_tau1Phi, reco_tau1E );
-
-      // cout<<__LINE__<<endl;
-      reco_tau2Pt  = tau_Pt->at(tau2Index);
-      reco_tau2Eta = tau_Eta->at(tau2Index);
-      reco_tau2Phi = tau_Phi->at(tau2Index);
-      reco_tau2dm  = tau_DecayMode->at(tau2Index);  
-      reco_tau2E   = tau_Energy->at(tau2Index);  
-      plotFill("reco_tau2Pt_"+hNumber, reco_tau2Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau2Eta_"+hNumber, reco_tau2Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau2Phi_"+hNumber, reco_tau2Phi, 30, -3.14, 3.14,  event_weight);
-      plotFill("reco_tau2DecayMode_"+hNumber, reco_tau2dm , 12, 0, 12,  event_weight);
-      reco_lep2.SetPtEtaPhiE(reco_tau2Pt, reco_tau2Eta, reco_tau2Phi, reco_tau2E );
-    }
-      if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0 && gen_tau_h_idx>=0 && gen_tau_e_idx>=0)
-      {
-        /// calcualte and fill deltaR(gen_tau, reco_tau)
-        float dR_ee = gen_lep1.DeltaR(reco_lep1);
-        float dR_tt = gen_lep2.DeltaR(reco_lep2);
-        plotFill("deltaR_ee_"+hNumber, dR_ee , 15, 0, 3,  event_weight);
-        plotFill("deltaR_tt_"+hNumber, dR_tt , 15, 0, 3,  event_weight);
-      
-        /// calculate and fill deltaPt (gen_tau , reco_tau)
-        float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
-        float delta_pt_ratio = delta_pt / gen_lep2.Pt();
-        plotFill("deltaPt_"+hNumber, delta_pt , 100 , -50 , 50 ,  event_weight);
-        plotFill("deltaPtRatio_"+hNumber, delta_pt_ratio , 40 , -2 , 2 ,  event_weight);
-      }
-	  tauCand.clear();
-    muCand.clear();
-    tauCand = getTauCand_vl(15.0, 2.3, 0 );
-    muCand = getMuCand(15.0, 2.3, 0);
-    reco_tau_e_idx = -99;
-    reco_tau_h_idx = -99;
-    hNumber = "1";
-    // tauCand = getTauCand(30.0, 2.3, 0 ); // from analysis
-    // cout<< "n reco taus "<< tauCand.size() <<endl;
-    // cout<<__LINE__<<endl;
-
-    if((muCand.size()>0 && tauCand.size()>0)==false)
-      continue;
-
-
-    // cout<<__LINE__<<endl;
-    for(int i=0; i<muCand.size(); i++)
-    {
-      for(int j=0; j<tauCand.size(); j++)
-      {
-        if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+          // cout<<__LINE__<<endl;
+          if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+            break;
+        }
+        // cout<<__LINE__<<endl;
+        if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+        {
+          make_plots("med_2", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+          // cout<<__LINE__<<endl;
+          reco_lep1.SetPtEtaPhiE(muPt->at(reco_tau_mu_idx), muEta->at(reco_tau_mu_idx), muPhi->at(reco_tau_mu_idx), muE->at(reco_tau_mu_idx));
+          reco_lep2.SetPtEtaPhiE(tau_Pt->at(reco_tau_h_idx), tau_Eta->at(reco_tau_h_idx), tau_Phi->at(reco_tau_h_idx), tau_Energy->at(reco_tau_h_idx));
+          // cout<<__LINE__<<endl;
+          if (thirdLeptonVeto(reco_tau_mu_idx, reco_tau_h_idx))
           {
-            reco_tau_e_idx=muCand[i]; 
-            reco_tau_h_idx=tauCand[j]; 
-            break;
+            // cout<<__LINE__<<endl;
+            make_plots("med_3", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+            // cout<<__LINE__<<endl;
+            if ((bJet_medium(reco_tau_mu_idx, reco_tau_h_idx).size() == 0) && (bJet_loose(reco_tau_mu_idx, reco_tau_h_idx).size() < 2))
+            {
+              // cout<<__LINE__<<endl;
+              make_plots("med_4", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              // cout<<__LINE__<<endl;
+              double deltaR = reco_lep1.DeltaR(reco_lep2);
+              bool pass_dr = false;
+              // cout<<__LINE__<<endl;
+              if (reco_lep2.Pt() >= 100 && reco_lep1.Pt() >= 100)
+                pass_dr = true;
+              else if (deltaR > 0.5)
+                pass_dr = true;
+              make_plots("med_5", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              // cout<<__LINE__<<endl;
+            }
           }
+        }
       }
       // cout<<__LINE__<<endl;
-      if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-        break;
-    }
-
-    // cout<<__LINE__<<endl;
-    if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-    {
-      // cout<<__LINE__<<endl;
-      int tau1Index = reco_tau_e_idx;
-      int tau2Index = reco_tau_h_idx;
-
-      reco_tau1Pt  = muPt->at(tau1Index);
-      reco_tau1Eta = muEta->at(tau1Index);
-      reco_tau1Phi = muPhi->at(tau1Index);
-      // reco_tau1dm  = tau_DecayMode->at(tau1Index);
-      reco_tau1E = muE->at(tau1Index);
-      plotFill("reco_tau1Pt_"+hNumber, reco_tau1Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau1Eta_"+hNumber, reco_tau1Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau1Phi_"+hNumber, reco_tau1Phi, 30, -3.14, 3.14,  event_weight);
-      // plotFill("reco_tau1DecayMode_"+hNumber, reco_tau1dm , 12, 0, 12,  event_weight);
-      plotFill("reco_tau1E_"+hNumber, reco_tau1E , 80 , 0 , 400 ,  event_weight);
-      reco_lep1.SetPtEtaPhiE(reco_tau1Pt, reco_tau1Eta, reco_tau1Phi, reco_tau1E );
-
-      // cout<<__LINE__<<endl;
-      reco_tau2Pt  = tau_Pt->at(tau2Index);
-      reco_tau2Eta = tau_Eta->at(tau2Index);
-      reco_tau2Phi = tau_Phi->at(tau2Index);
-      reco_tau2dm  = tau_DecayMode->at(tau2Index);  
-      reco_tau2E   = tau_Energy->at(tau2Index);  
-      plotFill("reco_tau2Pt_"+hNumber, reco_tau2Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau2Eta_"+hNumber, reco_tau2Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau2Phi_"+hNumber, reco_tau2Phi, 30, -3.14, 3.14,  event_weight);
-      plotFill("reco_tau2DecayMode_"+hNumber, reco_tau2dm , 12, 0, 12,  event_weight);
-      reco_lep2.SetPtEtaPhiE(reco_tau2Pt, reco_tau2Eta, reco_tau2Phi, reco_tau2E );
-    }
-      if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0 && gen_tau_h_idx>=0 && gen_tau_e_idx>=0)
+      tauCand.clear();
+      muCand.clear();
+      tauCand = getTauCand_vl(15.0, 2.3, 0);
+      muCand = getMuCand(15.0, 2.3, 0);
+      reco_tau_mu_idx = -99;
+      reco_tau_h_idx = -99;
+      if (muCand.size() > 0 && tauCand.size() > 0)
       {
-        /// calcualte and fill deltaR(gen_tau, reco_tau)
-        float dR_ee = gen_lep1.DeltaR(reco_lep1);
-        float dR_tt = gen_lep2.DeltaR(reco_lep2);
-        plotFill("deltaR_ee_"+hNumber, dR_ee , 15, 0, 3,  event_weight);
-        plotFill("deltaR_tt_"+hNumber, dR_tt , 15, 0, 3,  event_weight);
-      
-        /// calculate and fill deltaPt (gen_tau , reco_tau)
-        float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
-        float delta_pt_ratio = delta_pt / gen_lep2.Pt();
-        plotFill("deltaPt_"+hNumber, delta_pt , 100 , -50 , 50 ,  event_weight);
-        plotFill("deltaPtRatio_"+hNumber, delta_pt_ratio , 40 , -2 , 2 ,  event_weight);
-      }
-    tauCand.clear();
-    muCand.clear();
-    tauCand = getTauCand_superloose(15.0, 2.3, 0 );
-    muCand = getMuCand(15.0, 2.3, 0);
-    reco_tau_e_idx = -99;
-    reco_tau_h_idx = -99;
-    hNumber = "2";
-    // tauCand = getTauCand(30.0, 2.3, 0 ); // from analysis
-    // cout<< "n reco taus "<< tauCand.size() <<endl;
-    // cout<<__LINE__<<endl;
-
-    if((muCand.size()>0 && tauCand.size()>0)==false)
-      continue;
-
-
-    // cout<<__LINE__<<endl;
-    for(int i=0; i<muCand.size(); i++)
-    {
-      for(int j=0; j<tauCand.size(); j++)
-      {
-        if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+        // cout<<__LINE__<<endl;
+        for (int i = 0; i < muCand.size(); i++)
+        {
+          for (int j = 0; j < tauCand.size(); j++)
           {
-            reco_tau_e_idx=muCand[i]; 
-            reco_tau_h_idx=tauCand[j]; 
-            break;
+            if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+            {
+              reco_tau_mu_idx = muCand[i];
+              reco_tau_h_idx = tauCand[j];
+              break;
+            }
           }
+          // cout<<__LINE__<<endl;
+          if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+            break;
+        }
+        // cout<<__LINE__<<endl;
+        if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+        {
+          // cout<<__LINE__<<endl;
+          make_plots("vvvl_2", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+          reco_lep1.SetPtEtaPhiE(muPt->at(reco_tau_mu_idx), muEta->at(reco_tau_mu_idx), muPhi->at(reco_tau_mu_idx), muE->at(reco_tau_mu_idx));
+          reco_lep2.SetPtEtaPhiE(tau_Pt->at(reco_tau_h_idx), tau_Eta->at(reco_tau_h_idx), tau_Phi->at(reco_tau_h_idx), tau_Energy->at(reco_tau_h_idx));
+          // cout<<__LINE__<<endl;
+          if (thirdLeptonVeto(reco_tau_mu_idx, reco_tau_h_idx))
+          {
+            // cout<<__LINE__<<endl;
+            make_plots("vvvl_3", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+            if ((bJet_medium(reco_tau_mu_idx, reco_tau_h_idx).size() == 0) && (bJet_loose(reco_tau_mu_idx, reco_tau_h_idx).size() < 2))
+            {
+              // cout<<__LINE__<<endl;
+              make_plots("vvvl_4", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              double deltaR = reco_lep1.DeltaR(reco_lep2);
+              bool pass_dr = false;
+              // cout<<__LINE__<<endl;
+              if (reco_lep2.Pt() >= 100 && reco_lep1.Pt() >= 100)
+                pass_dr = true;
+              else if (deltaR > 0.5)
+                pass_dr = true;
+              make_plots("vvvl_5", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              // cout<<__LINE__<<endl;
+            }
+          }
+        }
       }
-      // cout<<__LINE__<<endl;
-      if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-        break;
-    }
-
     // cout<<__LINE__<<endl;
-    if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0)
-    {
-      // cout<<__LINE__<<endl;
-      int tau1Index = reco_tau_e_idx;
-      int tau2Index = reco_tau_h_idx;
-
-      reco_tau1Pt  = muPt->at(tau1Index);
-      reco_tau1Eta = muEta->at(tau1Index);
-      reco_tau1Phi = muPhi->at(tau1Index);
-      // reco_tau1dm  = tau_DecayMode->at(tau1Index);
-      reco_tau1E = muE->at(tau1Index);
-      plotFill("reco_tau1Pt_"+hNumber, reco_tau1Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau1Eta_"+hNumber, reco_tau1Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau1Phi_"+hNumber, reco_tau1Phi, 30, -3.14, 3.14,  event_weight);
-      // plotFill("reco_tau1DecayMode_"+hNumber, reco_tau1dm , 12, 0, 12,  event_weight);
-      plotFill("reco_tau1E_"+hNumber, reco_tau1E , 80 , 0 , 400 ,  event_weight);
-      reco_lep1.SetPtEtaPhiE(reco_tau1Pt, reco_tau1Eta, reco_tau1Phi, reco_tau1E );
-
-      // cout<<__LINE__<<endl;
-      reco_tau2Pt  = tau_Pt->at(tau2Index);
-      reco_tau2Eta = tau_Eta->at(tau2Index);
-      reco_tau2Phi = tau_Phi->at(tau2Index);
-      reco_tau2dm  = tau_DecayMode->at(tau2Index);  
-      reco_tau2E   = tau_Energy->at(tau2Index);  
-      plotFill("reco_tau2Pt_"+hNumber, reco_tau2Pt  , 80 , 0 , 400 ,  event_weight);
-      plotFill("reco_tau2Eta_"+hNumber, reco_tau2Eta , 25, -2.5, 2.5,  event_weight);
-      plotFill("reco_tau2Phi_"+hNumber, reco_tau2Phi, 30, -3.14, 3.14,  event_weight);
-      plotFill("reco_tau2DecayMode_"+hNumber, reco_tau2dm , 12, 0, 12,  event_weight);
-      reco_lep2.SetPtEtaPhiE(reco_tau2Pt, reco_tau2Eta, reco_tau2Phi, reco_tau2E );
+      tauCand.clear();
+      muCand.clear();
+      tauCand = getTauCand_superloose(15.0, 2.3, 0);
+      muCand = getMuCand(15.0, 2.3, 0);
+      reco_tau_mu_idx = -99;
+      reco_tau_h_idx = -99;
+      if (muCand.size() > 0 && tauCand.size() > 0)
+      {
+        // cout<<__LINE__<<endl;
+        for (int i = 0; i < muCand.size(); i++)
+        {
+          for (int j = 0; j < tauCand.size(); j++)
+          {
+            if (muCharge->at(muCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+            {
+              reco_tau_mu_idx = muCand[i];
+              reco_tau_h_idx = tauCand[j];
+              break;
+            }
+          }
+          // cout<<__LINE__<<endl;
+          if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+            break;
+        }
+        if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+        {
+          // cout<<__LINE__<<endl;
+          make_plots("sl_2", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+          reco_lep1.SetPtEtaPhiE(muPt->at(reco_tau_mu_idx), muEta->at(reco_tau_mu_idx), muPhi->at(reco_tau_mu_idx), muE->at(reco_tau_mu_idx));
+          reco_lep2.SetPtEtaPhiE(tau_Pt->at(reco_tau_h_idx), tau_Eta->at(reco_tau_h_idx), tau_Phi->at(reco_tau_h_idx), tau_Energy->at(reco_tau_h_idx));
+          if (thirdLeptonVeto(reco_tau_mu_idx, reco_tau_h_idx))
+          {
+            // cout<<__LINE__<<endl;
+            make_plots("sl_3", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+            if ((bJet_medium(reco_tau_mu_idx, reco_tau_h_idx).size() == 0) && (bJet_loose(reco_tau_mu_idx, reco_tau_h_idx).size() < 2))
+            {
+              // cout<<__LINE__<<endl;
+              make_plots("sl_4", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              double deltaR = reco_lep1.DeltaR(reco_lep2);
+              bool pass_dr = false;
+              // cout<<__LINE__<<endl;
+              if (reco_lep2.Pt() >= 100 && reco_lep1.Pt() >= 100)
+                pass_dr = true;
+              else if (deltaR > 0.5)
+                pass_dr = true;
+              make_plots("sl_5", reco_tau_mu_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_mu_idx);
+              // cout<<__LINE__<<endl;
+            }
+          }
+        }
+      }
     }
-    
-    // cout<<__LINE__<<endl;
-
-  if (reco_tau_e_idx>=0 && reco_tau_h_idx>=0 && gen_tau_h_idx>=0 && gen_tau_e_idx>=0)
-  {
-    /// calcualte and fill deltaR(gen_tau, reco_tau)
-    float dR_ee = gen_lep1.DeltaR(reco_lep1);
-    float dR_tt = gen_lep2.DeltaR(reco_lep2);
-    plotFill("deltaR_ee_"+hNumber, dR_ee , 15, 0, 3,  event_weight);
-    plotFill("deltaR_tt_"+hNumber, dR_tt , 15, 0, 3,  event_weight);
-  
-        /// calculate and fill deltaPt (gen_tau , reco_tau)
-        float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
-        float delta_pt_ratio = delta_pt / gen_lep2.Pt();
-        plotFill("deltaPt_"+hNumber, delta_pt , 100 , -50 , 50 ,  event_weight);
-        plotFill("deltaPtRatio_"+hNumber, delta_pt_ratio , 40 , -2 , 2 ,  event_weight);
-  }
-
-	}
 
        
        report_test = nentriesToCheck/20;
@@ -582,71 +479,7 @@ event_weight = 1.0;
    if((nentriesToCheck-1)%reportEvery != 0)
      std::cout<<"Finished entry "<<(nentriesToCheck-1)<<"/"<<(nentriesToCheck-1)<<std::endl;
    // sw.Stop();
-   std::cout<<"All events checked."<<std::endl;
-   std::cout<<"*******************************************"<<std::endl;
-   std::cout<<"******************Jithin's original*************************"<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"Initial entries "<<numberOfEvents<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"Passing smikking "<<nPassedSkimmed<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"Inspected genWeightd "<<nInspected_genWeighted<<std::setw(10) <<std::right << "   % change= "<<(numberOfEvents-nInspected_genWeighted)*100/numberOfEvents<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"GoodMuonPassed "<<nGoodMuonPassed<<std::setw(10) <<std::right << "   % change= "<<(nSingleTrgPassed-nGoodMuonPassed)*100/nSingleTrgPassed<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"GoodTauPassed "<<nGoodTauPassed<<std::setw(10) <<std::right << "   % change= "<<(nGoodMuonPassed-nGoodTauPassed)*100/nGoodMuonPassed<<std::endl;
-   //   std::cout<<std::setw(20) <<std::right <<"TauIsoPassed "<<nTauIsoPassed<<std::setw(10) <<std::right << "   % change= "<<(nGoodTauPassed-nTauIsoPassed)*100/nGoodTauPassed<<std::endl;
-   //std::cout<<std::setw(20) <<std::right <<"TauDecayModePassed "<<nTauDecayModePassed<<std::setw(10) <<std::right << "   % change= "<<(nTauIsoPassed-nTauDecayModePassed)*100/nTauIsoPassed<<std::endl;
 
-   std::cout<<std::setw(20) <<std::right <<"opp charge "<<nGoodMuTauPassed<<std::setw(10) <<std::right << "   % change= "<<(nGoodTauPassed-nGoodMuTauPassed)*100/nGoodTauPassed<<std::endl;
-
-   
-   std::cout<<std::setw(20) <<std::right <<"PassedThirdLepVeto "<<nPassedThirdLepVeto<<std::setw(10) <<std::right << "   % change= "<<(nGoodMuTauPassed-nPassedThirdLepVeto)*100/nGoodMuTauPassed<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"PassedBjetVeto "<<nPassedBjetVeto<<std::setw(10) <<std::right << "   % change= "<<(nPassedThirdLepVeto-nPassedBjetVeto)*100/nPassedThirdLepVeto<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"DeltaRPassed "<<nDeltaRPassed<<std::setw(10) <<std::right << "   % change= "<<(nPassedBjetVeto-nDeltaRPassed)*100/nPassedBjetVeto<<std::endl;
-
-
-   std::cout<<std::setw(20) <<std::right <<"Total change :"<<(numberOfEvents-nDeltaRPassed)*100/numberOfEvents<<std::endl;
-   std::cout<<"*******************************************"<<std::endl;
-   std::cout<<"*******************************************"<<std::endl;
-   std::cout<<std::setw(20) <<std::right <<"Number of events inspected: " << nInspected <<std::endl;
-   std::cout<<std::setw(20) <<std::right << "Number of events inspected (minus negative gen. weights): " << nInspected_genWeighted << std::endl; 
-   
-
-     
-   h_cutflow_n->SetBinContent(1,nInspected_genWeighted );
-   h_cutflow_n->SetBinContent(2, nSingleTrgPassed);
-   h_cutflow_n->SetBinContent(3, nGoodMuonPassed);
-   h_cutflow_n->SetBinContent(4, nGoodTauPassed);
-   h_cutflow_n->SetBinContent(5, nGoodMuTauPassed);
-   h_cutflow_n->SetBinContent(6, nPassedThirdLepVeto);
-   h_cutflow_n->SetBinContent(7, nPassedBjetVeto);
-   h_cutflow_n->SetBinContent(8, nDeltaRPassed);
-   
-   h_cutflow_n_fr->SetBinContent(1,nInspected_genWeighted );
-   h_cutflow_n_fr->SetBinContent(2, nSingleTrgPassed_fr);
-   h_cutflow_n_fr->SetBinContent(3, nGoodMuonPassed_fr);
-   h_cutflow_n_fr->SetBinContent(4, nGoodTauPassed_fr);
-   h_cutflow_n_fr->SetBinContent(5, nGoodMuTauPassed_fr);
-   h_cutflow_n_fr->SetBinContent(6, nPassedThirdLepVeto_fr);
-   h_cutflow_n_fr->SetBinContent(7, nPassedBjetVeto_fr);
-   h_cutflow_n_fr->SetBinContent(8, nDeltaRPassed_fr);
-
-   /// dy Z->ll
-   h_cutflow_n_dyll->SetBinContent(1,nInspected_genWeighted );
-   h_cutflow_n_dyll->SetBinContent(2, nSingleTrgPassed_dyll);
-   h_cutflow_n_dyll->SetBinContent(3, nGoodMuonPassed_dyll);
-   h_cutflow_n_dyll->SetBinContent(4, nGoodTauPassed_dyll);
-   h_cutflow_n_dyll->SetBinContent(5, nGoodMuTauPassed_dyll);
-   h_cutflow_n_dyll->SetBinContent(6, nPassedThirdLepVeto_dyll);
-   h_cutflow_n_dyll->SetBinContent(7, nPassedBjetVeto_dyll);
-   h_cutflow_n_dyll->SetBinContent(8, nDeltaRPassed_dyll);
-   
-   h_cutflow_n_dyll_fr->SetBinContent(1,nInspected_genWeighted );
-   h_cutflow_n_dyll_fr->SetBinContent(2, nSingleTrgPassed_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(3, nGoodMuonPassed_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(4, nGoodTauPassed_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(5, nGoodMuTauPassed_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(6, nPassedThirdLepVeto_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(7, nPassedBjetVeto_dyll_fr);
-   h_cutflow_n_dyll_fr->SetBinContent(8, nDeltaRPassed_dyll_fr);
-   ///
-   
    // fileName->cd();
    // map<string, TH1F*>::const_iterator iMap1 = myMap1->begin();
    // map<string, TH1F*>::const_iterator jMap1 = myMap1->end();
@@ -691,4 +524,81 @@ void mutau_analyzer::printP4values(string when=""){
 		    "MET", my_metP4.Pt(), "\n"
 		    );
   
+}
+void mutau_analyzer::make_plots(string category, int reco_tau_mu_idx, int reco_tau_h_idx, int gen_tau_h_idx, int gen_tau_mu_idx)
+{
+  // cout<<__LINE__<<" cat="<< category <<endl;
+  float event_weight = 1.0;
+  TLorentzVector reco_lep1, reco_lep2, gen_lep1, gen_lep2;
+  if (gen_tau_h_idx >= 0 && gen_tau_mu_idx >= 0)
+  {
+    float event_weight = 1.0;
+    
+    gen_tau1Pt = mcPt->at(gen_tau_mu_idx);
+    gen_tau1Eta = mcEta->at(gen_tau_mu_idx);
+    gen_tau1Phi = mcPhi->at(gen_tau_mu_idx);
+    // gen_tau1dm = mcTauDecayMode->at(gen_tau_mu_idx);
+    gen_tau1E = mcE->at(gen_tau_mu_idx);
+    plotFill("gen_tau1Pt_" + category, gen_tau1Pt, 80, 0, 400, event_weight);
+    plotFill("gen_tau1Eta_" + category, gen_tau1Eta, 25, -2.5, 2.5, event_weight);
+    plotFill("gen_tau1Phi_" + category, gen_tau1Phi, 30, -3.14, 3.14, event_weight);
+    // plotFill("gen_tau1DecayMode_" + category, gen_tau1dm, 12, 0, 12, event_weight);
+    gen_lep1.SetPtEtaPhiE(gen_tau1Pt, gen_tau1Eta, gen_tau1Phi, gen_tau1E);
+
+    gen_tau2Pt = mcPt->at(gen_tau_h_idx);
+    gen_tau2Eta = mcEta->at(gen_tau_h_idx);
+    gen_tau2Phi = mcPhi->at(gen_tau_h_idx);
+    gen_tau2dm = mcTauDecayMode->at(gen_tau_h_idx);
+    gen_tau2E = mcE->at(gen_tau_h_idx);
+    plotFill("gen_tau2Pt_" + category, gen_tau2Pt, 80, 0, 400, event_weight);
+    plotFill("gen_tau2Eta_" + category, gen_tau2Eta, 25, -2.5, 2.5, event_weight);
+    plotFill("gen_tau2Phi_" + category, gen_tau2Phi, 30, -3.14, 3.14, event_weight);
+    plotFill("gen_tau2DecayMode_" + category, gen_tau2dm, 12, 0, 12, event_weight);
+    gen_lep2.SetPtEtaPhiE(gen_tau2Pt, gen_tau2Eta, gen_tau2Phi, gen_tau2E);
+  }
+  // // cout<<__LINE__<<endl;
+  if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0)
+  {
+    // // cout<<__LINE__<<endl;
+    int tau1Index = reco_tau_mu_idx;
+    int tau2Index = reco_tau_h_idx;
+
+    reco_tau1Pt = muPt->at(tau1Index);
+    reco_tau1Eta = muEta->at(tau1Index);
+    reco_tau1Phi = muPhi->at(tau1Index);
+    // reco_tau1dm  = tau_DecayMode->at(tau1Index);
+    reco_tau1E = muE->at(tau1Index);
+    plotFill("reco_tau1Pt_" + category, reco_tau1Pt, 80, 0, 400, event_weight);
+    plotFill("reco_tau1Eta_" + category, reco_tau1Eta, 25, -2.5, 2.5, event_weight);
+    plotFill("reco_tau1Phi_" + category, reco_tau1Phi, 30, -3.14, 3.14, event_weight);
+    // plotFill("reco_tau1DecayMode_"+category, reco_tau1dm , 12, 0, 12,  event_weight);
+    plotFill("reco_tau1E_" + category, reco_tau1E, 80, 0, 400, event_weight);
+    reco_lep1.SetPtEtaPhiE(reco_tau1Pt, reco_tau1Eta, reco_tau1Phi, reco_tau1E);
+
+    // // cout<<__LINE__<<endl;
+    reco_tau2Pt = tau_Pt->at(tau2Index);
+    reco_tau2Eta = tau_Eta->at(tau2Index);
+    reco_tau2Phi = tau_Phi->at(tau2Index);
+    reco_tau2dm = tau_DecayMode->at(tau2Index);
+    reco_tau2E = tau_Energy->at(tau2Index);
+    plotFill("reco_tau2Pt_" + category, reco_tau2Pt, 80, 0, 400, event_weight);
+    plotFill("reco_tau2Eta_" + category, reco_tau2Eta, 25, -2.5, 2.5, event_weight);
+    plotFill("reco_tau2Phi_" + category, reco_tau2Phi, 30, -3.14, 3.14, event_weight);
+    plotFill("reco_tau2DecayMode_" + category, reco_tau2dm, 12, 0, 12, event_weight);
+    reco_lep2.SetPtEtaPhiE(reco_tau2Pt, reco_tau2Eta, reco_tau2Phi, reco_tau2E);
+  }
+  if (reco_tau_mu_idx >= 0 && reco_tau_h_idx >= 0 && gen_tau_h_idx >= 0 && gen_tau_mu_idx >= 0)
+  {
+    /// calcualte and fill deltaR(gen_tau, reco_tau)
+    float dR_ee = gen_lep1.DeltaR(reco_lep1);
+    float dR_tt = gen_lep2.DeltaR(reco_lep2);
+    plotFill("deltaR_ee_" + category, dR_ee, 15, 0, 3, event_weight);
+    plotFill("deltaR_tt_" + category, dR_tt, 15, 0, 3, event_weight);
+
+    /// calculate and fill deltaPt (gen_tau , reco_tau)
+    float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
+    float delta_pt_ratio = delta_pt / gen_lep2.Pt();
+    plotFill("deltaPt_" + category, delta_pt, 100, -50, 50, event_weight);
+    plotFill("deltaPtRatio_" + category, delta_pt_ratio, 40, -2, 2, event_weight);
+  }
 }
