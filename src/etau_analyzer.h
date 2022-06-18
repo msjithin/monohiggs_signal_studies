@@ -1090,6 +1090,7 @@ public :
    void make_met_plots(string hindex);
    void make_met_corr_plot();
    float average(std::vector<double> const& v);
+   void make_plots(string category, int reco_tau_e_idx, int reco_tau_h_idx, int gen_tau_h_idx, int gen_tau_e_idx);
 
    //class myclass;
 };
