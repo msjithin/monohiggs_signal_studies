@@ -430,10 +430,12 @@ void etau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName)
           }
         }
       }
-// cout<<__LINE__<<endl;
+      
+      
+      // cout<<__LINE__<<endl;
       tauCand.clear();
       eleCand.clear();
-      tauCand = getTauCand_superloose(15.0, 2.3, 0);
+      tauCand = getTauCand_sloose(15.0, 2.3, 0);
       eleCand = getEleCand(15.0, 2.3, 0);
       reco_tau_e_idx = -99;
       reco_tau_h_idx = -99;
@@ -477,6 +479,110 @@ void etau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName)
               else if (deltaR > 0.5)
                 pass_dr = true;
               make_plots("sl_5", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+              // cout<<__LINE__<<endl;
+            }
+          }
+        }
+      }
+      // cout<<__LINE__<<endl;
+      tauCand.clear();
+      eleCand.clear();
+      tauCand = getTauCand_ssloose(15.0, 2.3, 0);
+      eleCand = getEleCand(15.0, 2.3, 0);
+      reco_tau_e_idx = -99;
+      reco_tau_h_idx = -99;
+      if (eleCand.size() > 0 && tauCand.size() > 0)
+      {
+        // cout<<__LINE__<<endl;
+        for (int i = 0; i < eleCand.size(); i++)
+        {
+          for (int j = 0; j < tauCand.size(); j++)
+          {
+            if (eleCharge->at(eleCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+            {
+              reco_tau_e_idx = eleCand[i];
+              reco_tau_h_idx = tauCand[j];
+              break;
+            }
+          }
+          // cout<<__LINE__<<endl;
+          if (reco_tau_e_idx >= 0 && reco_tau_h_idx >= 0)
+            break;
+        }
+        if (reco_tau_e_idx >= 0 && reco_tau_h_idx >= 0)
+        {
+          // cout<<__LINE__<<endl;
+          make_plots("ssl_2", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+          reco_lep1.SetPtEtaPhiE(elePt->at(reco_tau_e_idx), eleEta->at(reco_tau_e_idx), elePhi->at(reco_tau_e_idx), eleE->at(reco_tau_e_idx));
+          reco_lep2.SetPtEtaPhiE(tau_Pt->at(reco_tau_h_idx), tau_Eta->at(reco_tau_h_idx), tau_Phi->at(reco_tau_h_idx), tau_Energy->at(reco_tau_h_idx));
+          if (thirdLeptonVeto(reco_tau_e_idx, reco_tau_h_idx))
+          {
+            // cout<<__LINE__<<endl;
+            make_plots("ssl_3", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+            if ((bJet_medium(reco_tau_e_idx, reco_tau_h_idx).size() == 0) && (bJet_loose(reco_tau_e_idx, reco_tau_h_idx).size() < 2))
+            {
+              // cout<<__LINE__<<endl;
+              make_plots("ssl_4", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+              double deltaR = reco_lep1.DeltaR(reco_lep2);
+              bool pass_dr = false;
+              // cout<<__LINE__<<endl;
+              if (reco_lep2.Pt() >= 100 && reco_lep1.Pt() >= 100)
+                pass_dr = true;
+              else if (deltaR > 0.5)
+                pass_dr = true;
+              make_plots("ssl_5", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+              // cout<<__LINE__<<endl;
+            }
+          }
+        }
+      }
+      // cout<<__LINE__<<endl;
+      tauCand.clear();
+      eleCand.clear();
+      tauCand = getTauCand_sssloose(15.0, 2.3, 0);
+      eleCand = getEleCand(15.0, 2.3, 0);
+      reco_tau_e_idx = -99;
+      reco_tau_h_idx = -99;
+      if (eleCand.size() > 0 && tauCand.size() > 0)
+      {
+        // cout<<__LINE__<<endl;
+        for (int i = 0; i < eleCand.size(); i++)
+        {
+          for (int j = 0; j < tauCand.size(); j++)
+          {
+            if (eleCharge->at(eleCand[i]) * tau_Charge->at(tauCand[j]) < 0)
+            {
+              reco_tau_e_idx = eleCand[i];
+              reco_tau_h_idx = tauCand[j];
+              break;
+            }
+          }
+          // cout<<__LINE__<<endl;
+          if (reco_tau_e_idx >= 0 && reco_tau_h_idx >= 0)
+            break;
+        }
+        if (reco_tau_e_idx >= 0 && reco_tau_h_idx >= 0)
+        {
+          // cout<<__LINE__<<endl;
+          make_plots("sssl_2", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+          reco_lep1.SetPtEtaPhiE(elePt->at(reco_tau_e_idx), eleEta->at(reco_tau_e_idx), elePhi->at(reco_tau_e_idx), eleE->at(reco_tau_e_idx));
+          reco_lep2.SetPtEtaPhiE(tau_Pt->at(reco_tau_h_idx), tau_Eta->at(reco_tau_h_idx), tau_Phi->at(reco_tau_h_idx), tau_Energy->at(reco_tau_h_idx));
+          if (thirdLeptonVeto(reco_tau_e_idx, reco_tau_h_idx))
+          {
+            // cout<<__LINE__<<endl;
+            make_plots("sssl_3", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+            if ((bJet_medium(reco_tau_e_idx, reco_tau_h_idx).size() == 0) && (bJet_loose(reco_tau_e_idx, reco_tau_h_idx).size() < 2))
+            {
+              // cout<<__LINE__<<endl;
+              make_plots("sssl_4", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
+              double deltaR = reco_lep1.DeltaR(reco_lep2);
+              bool pass_dr = false;
+              // cout<<__LINE__<<endl;
+              if (reco_lep2.Pt() >= 100 && reco_lep1.Pt() >= 100)
+                pass_dr = true;
+              else if (deltaR > 0.5)
+                pass_dr = true;
+              make_plots("sssl_5", reco_tau_e_idx, reco_tau_h_idx, gen_tau_h_idx, gen_tau_e_idx);
               // cout<<__LINE__<<endl;
             }
           }
