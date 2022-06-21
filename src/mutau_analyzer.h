@@ -1010,7 +1010,11 @@ public :
    virtual vector<int> getTauCand(double pt, double eta, int shift);
     vector<int> getTauCand_med(double pt, double eta,  int shift);
    vector<int> getTauCand_vl(double pt, double eta,  int shift);
-   vector<int> getTauCand_superloose(double pt, double eta,  int shift);
+   vector<int> getTauCand_sloose(double pt, double eta,  int shift);
+   vector<int> getTauCand_ssloose(double pt, double eta,  int shift);
+   vector<int> getTauCand_sssloose(double pt, double eta,  int shift);
+   vector<int> getTauCand_2017mva(double pt, double eta,  int shift);
+   
    virtual vector<int> getAISRTauCand(double pt, double eta, int shift);
    virtual vector<int> getJetCand(int muIndex, int tauIndex);
    int getZCand();
