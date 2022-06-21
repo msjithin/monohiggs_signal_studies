@@ -352,7 +352,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
@@ -434,7 +434,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
@@ -517,7 +517,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
@@ -595,7 +595,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
@@ -672,7 +672,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
@@ -748,7 +748,7 @@ void mutau_analyzer::Loop(Long64_t maxEvents, int reportEvery, string SampleName
               float delta_pt = (gen_lep2.Pt() - reco_lep2.Pt());
               float delta_pt_ratio = delta_pt / gen_lep2.Pt();
               float dR_tt = gen_lep2.DeltaR(reco_lep2);
-              if(dR_tt<0.3 && delta_pt_ratio < 0.5)
+              if(dR_tt<0.3 && abs(delta_pt_ratio) < 0.5)
               {
                 reco_tau_mu_idx = tmp_mu;
                 reco_tau_h_idx = tmp_tau;
